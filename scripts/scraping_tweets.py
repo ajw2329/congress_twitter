@@ -68,10 +68,24 @@ def get_user_tweets(username, start_date, end_date, max_tweets):
     return pd.DataFrame(tweet_dict)
 
 
-get_user_tweets("SpeakerPelosi", "2020-11-01", "2020-11-10", 20)
+def get_multi_user_tweets(usernames, start_date, end_date, max_tweets):
+
+    dfs = [get_user_tweets(i, start_date, end_date, max_tweets) for i in usernames]
+
+    concat_df = pd.concat(dfs, axis = 1)
+
+    return concat_df
+
+def get_democrat_tweets():
+
+    pass
+
+def get_republican_tweets():
+
+    pass
 
 
-
+pelosi = get_user_tweets("SpeakerPelosi", "2020-01-01", "2020-12-31", 20000)
 
 
 
