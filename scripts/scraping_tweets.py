@@ -76,13 +76,25 @@ def get_multi_user_tweets(usernames, start_date, end_date, max_tweets):
 
     return concat_df
 
-def get_democrat_tweets():
+def get_democrat_tweets(handles_df, start_date, end_date, max_tweets):
 
-    pass
+    dem_handles = handles_df.Twitter[handles_df.Party.isin(["D", "I"])]
 
-def get_republican_tweets():
+    dem_tweets = get_multi_user_tweets(dem_handles, start_date, end_date, max_tweets)
 
-    pass
+    dem_tweets["party"] = "D"
+
+    return dem_tweets
+
+def get_republican_tweets(handles_df, start_date, end_date, max_tweets):
+
+    rep_handles = handles_df.Twitter[handles_df.Party.eq("R")]
+
+    rep_tweets = get_multi_user_tweets(rep_handles, start_date, end_date, max_tweets)
+
+    rep_tweets["party"] = "R"
+
+    return rep_tweets  
 
 
 pelosi = get_user_tweets("SpeakerPelosi", "2020-01-01", "2020-12-31", 20000)
