@@ -3,9 +3,11 @@
 import snscrape.modules.twitter as sntwitter
 import csv
 import pandas as pd
+from random import randint
+from time import sleep
 
 
-maxTweets = 3000
+maxTweets = 5000
 
 csvFile = open('place_result.csv', 'a', newline='', encoding='utf8')
 
@@ -53,6 +55,8 @@ def get_user_tweets(username, start_date, end_date, max_tweets):
 
 	username = username.replace('@', '')
 
+    print("Scraping tweets by user", username)
+
 	query = f'from:@{username} + since:{start_date} until:{end_date}-filter:links -filter:replies'
 
 	tweet_generator = sntwitter.TwitterSearchScraper(query).get_items()
@@ -65,36 +69,62 @@ def get_user_tweets(username, start_date, end_date, max_tweets):
         tweet_dict["date"].append(tweet.date)
         tweet_dict["tweet_content"].append(tweet.content)
 
-    return pd.DataFrame(tweet_dict)
+    tweet_df = pd.DataFrame(tweet_dict)
+
+    print("Scraped", tweet_df.shape[0], "by user", username)
+
+    return tweet_df
 
 
-def get_multi_user_tweets(usernames, start_date, end_date, max_tweets):
+def get_multi_user_tweets(usernames, start_date, end_date, max_tweets, sleep_sec = 10):
 
-    dfs = [get_user_tweets(i, start_date, end_date, max_tweets) for i in usernames]
+    dfs = [None]*len(usernames)
+
+    for i, user in enumerate(usernames):
+
+        dfs[i] = get_user_tweets(user, start_date, end_date, max_tweets)
+
+        sleep(randint(sleep_sec, sleep_sec + 30))
 
     concat_df = pd.concat(dfs, axis = 1)
 
     return concat_df
 
-def get_democrat_tweets(handles_df, start_date, end_date, max_tweets):
+def get_democrat_tweets(handles_df, start_date, end_date, max_tweets, sleep_sec):
 
     dem_handles = handles_df.Twitter[handles_df.Party.isin(["D", "I"])]
 
-    dem_tweets = get_multi_user_tweets(dem_handles, start_date, end_date, max_tweets)
+    dem_tweets = get_multi_user_tweets(dem_handles, start_date, end_date, max_tweets, sleep_sec)
 
     dem_tweets["party"] = "D"
 
     return dem_tweets
 
-def get_republican_tweets(handles_df, start_date, end_date, max_tweets):
+def get_republican_tweets(handles_df, start_date, end_date, max_tweets, sleep_sec):
 
     rep_handles = handles_df.Twitter[handles_df.Party.eq("R")]
 
-    rep_tweets = get_multi_user_tweets(rep_handles, start_date, end_date, max_tweets)
+    rep_tweets = get_multi_user_tweets(rep_handles, start_date, end_date, max_tweets, sleep_sec)
 
     rep_tweets["party"] = "R"
 
     return rep_tweets  
+
+
+def get_all_tweets(handles_df, start_date, end_date, max_tweets, sleep_sec):
+
+    dem_tweets = get_democrat_tweets(handles_df, start_date, end_date, max_tweets, sleep_sec)
+    rep_tweets = get_republican_tweets(handles_df, start_date, end_date, max_tweets, sleep_sec)
+
+    all_tweets = pd.concat([dem_tweets, rep_tweets], axis = 1)
+
+    return all_tweets
+
+
+all_tweets = get_all_tweets(handles_df, "2020-01-01", "2020-12-31", max_tweets = 5000, sleep_sec = 30)
+
+
+
 
 
 pelosi = get_user_tweets("SpeakerPelosi", "2020-01-01", "2020-12-31", 20000)
