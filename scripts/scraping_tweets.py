@@ -125,7 +125,7 @@ def get_multi_user_tweets(
         dfs[i] = get_user_tweets(
             user, start_date, end_date, max_tweets, outdir, sleep_sec, **kwargs)
 
-    concat_df = pd.concat(dfs, axis = 1)
+    concat_df = pd.concat(dfs, axis = 0)
 
     return concat_df
 
@@ -155,7 +155,7 @@ def get_all_tweets(handles_df, start_date, end_date, max_tweets, outdir, sleep_s
     dem_tweets = get_democrat_tweets(handles_df, start_date, end_date, max_tweets, outdir, sleep_sec)
     rep_tweets = get_republican_tweets(handles_df, start_date, end_date, max_tweets, outdir, sleep_sec)
 
-    all_tweets = pd.concat([dem_tweets, rep_tweets], axis = 1)
+    all_tweets = pd.concat([dem_tweets, rep_tweets], axis = 0)
 
     return all_tweets
 
