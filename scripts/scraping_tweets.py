@@ -166,6 +166,7 @@ handles_df = pd.read_csv("/home/aw/projects/congress_twitter/data/congress_twitt
 all_tweets = get_all_tweets(handles_df, "2020-01-01", "2020-12-31", max_tweets = 5000, outdir = "./output/", sleep_sec = 5)
 
 
+all_tweets.to_csv("./output/all_tweets.csv")
 
 
 

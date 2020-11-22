@@ -1,20 +1,23 @@
 import spacy
 
+nlp = spacy.load('en_core_web_lg')
 
-def lemmatize(text, nlp_model):
+stopwords = nlp.Defaults.stop_words
 
-    doc = nlp_model(text)
+def lemmatize(text, model = nlp):
+
+    doc = model(text)
 
     lemmas = [token.lemma_ for token in doc]
 
     return lemmas
 
 
-a_lemmas = [lemma for lemma in lemmas 
-            if lemma.isalpha() and lemma not in stopwords]
+#a_lemmas = [lemma for lemma in lemmas 
+#            if lemma.isalpha() and lemma not in stopwords]
 
 
-def preprocess(text):
+def preprocess(text, model = nlp, stopwords = stopwords):
     # Create Doc object
     doc = nlp(text, disable=['ner', 'parser'])
     # Generate lemmas
@@ -26,9 +29,9 @@ def preprocess(text):
     return ' '.join(a_lemmas)
 
 
-def get_pos(text):
+def get_pos(text, model = nlp):
 
-  doc = nlp(text)
+  doc = model(text)
 
   pos = [(token.text, token.pos_) for token in doc]
 
@@ -58,9 +61,9 @@ def get_ents(text, model = nlp):
   return ents
 
 
-def find_persons(text):
+def find_persons(text, model = nlp):
   # Create Doc object
-  doc = nlp(text)
+  doc = model(text)
   
   # Identify the persons
   persons = [ent.text for ent in doc.ents if ent.label_ == 'PERSON']
