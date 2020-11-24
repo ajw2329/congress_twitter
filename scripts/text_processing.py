@@ -1,4 +1,5 @@
 import spacy
+from collections import Counter
 
 nlp = spacy.load('en_core_web_lg')
 
@@ -33,9 +34,10 @@ def get_pos(text, model = nlp):
 
   doc = model(text)
 
-  pos = [(token.text, token.pos_) for token in doc]
+  pos = Counter([token.pos_ for token in doc])
 
   return pos
+
 
 
 # Returns number of proper nouns
