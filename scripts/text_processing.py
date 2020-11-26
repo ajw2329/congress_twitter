@@ -1,5 +1,8 @@
 import spacy
 from collections import Counter
+from sklearn.base import BaseEstimator, TransformerMixin
+from pandarallel import pandarallel
+
 
 nlp = spacy.load('en_core_web_lg')
 
@@ -74,3 +77,23 @@ def find_persons(text, model = nlp):
   return persons
 
 
+
+class PartsOfSpeechExtractor(BaseEstimator, TransformerMixin):
+    """Takes in dataframe, extracts road name column, outputs average word length"""
+
+    def __init__(self):
+        pass
+
+    def get_pos(self, text, model):
+        """Helper code to compute average word length of a name"""
+        doc = nlp(text)
+        return Counter([token.pos_ for token in doc])
+
+    def transform(self, df, y=None):
+        """The workhorse of this feature extractor"""
+        pandarallel.initialize()
+        return pd.DataFrame(df['tweet_content'].parallel_apply(self.get_pos).to_list()).fillna(0)
+
+    def fit(self, df, y=None):
+        """Returns `self` unless something different happens in train and test"""
+        return self
