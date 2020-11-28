@@ -1,3 +1,5 @@
 *.csv
 venv
 output
+*.pyc
+.ipynb_checkpoints
