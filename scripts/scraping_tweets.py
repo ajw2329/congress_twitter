@@ -86,9 +86,11 @@ def get_user_tweets(
 
         for tweet in tweet_generator:
 
-            tweet_dict["username"].append(tweet.user.username)
-            tweet_dict["date"].append(tweet.date)
-            tweet_dict["tweet_content"].append(tweet.content)
+            if tweet.user.username == username:
+
+                tweet_dict["username"].append(tweet.user.username)
+                tweet_dict["date"].append(tweet.date)
+                tweet_dict["tweet_content"].append(tweet.content)
 
         tweet_df = pd.DataFrame(tweet_dict)
 
