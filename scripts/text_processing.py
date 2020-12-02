@@ -2,6 +2,7 @@ import spacy
 from collections import Counter
 from sklearn.base import BaseEstimator, TransformerMixin
 from pandarallel import pandarallel
+import pandas as pd
 
 
 nlp = spacy.load('en_core_web_lg')
@@ -84,7 +85,7 @@ class PartsOfSpeechExtractor(BaseEstimator, TransformerMixin):
     def __init__(self):
         pass
 
-    def get_pos(self, text, model):
+    def get_pos(self, text, model = nlp):
         """Helper code to compute average word length of a name"""
         doc = nlp(text)
         return Counter([token.pos_ for token in doc])
