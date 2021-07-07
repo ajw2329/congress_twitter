@@ -42,4 +42,4 @@ socmed_df = pd.DataFrame(data = data, columns = list_header)
    
 # Converting Pandas DataFrame 
 # into CSV file 
-socmed_df.to_csv('./data/congress_twitter_handles.csv') 
+socmed_df.to_csv('./congress_twitter/data/congress_twitter_handles.csv') 

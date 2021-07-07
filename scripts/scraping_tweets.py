@@ -86,9 +86,11 @@ def get_user_tweets(
 
         for tweet in tweet_generator:
 
-            if tweet.user.username == username:
+            #print(dir(tweet))
 
-                tweet_dict["username"].append(tweet.user.username)
+            if tweet.username == username:
+
+                tweet_dict["username"].append(tweet.username)
                 tweet_dict["date"].append(tweet.date)
                 tweet_dict["tweet_content"].append(tweet.content)
 
@@ -162,13 +164,13 @@ def get_all_tweets(handles_df, start_date, end_date, max_tweets, outdir, sleep_s
     return all_tweets
 
 
-handles_df = pd.read_csv("/home/aw/projects/congress_twitter/data/congress_twitter_handles.csv")
+handles_df = pd.read_csv("/home/andrew/projects/congress_twitter/congress_twitter/data/congress_twitter_handles.csv")
 
 
-all_tweets = get_all_tweets(handles_df, "2020-01-01", "2020-12-31", max_tweets = 5000, outdir = "./output/", sleep_sec = 5)
+all_tweets = get_all_tweets(handles_df, "2020-01-01", "2021-07-07", max_tweets = 5000, outdir = "./congress_twitter/output/", sleep_sec = 5)
 
 
-all_tweets.to_csv("./output/all_tweets.csv")
+all_tweets.to_csv("./congress_twitter/output/all_tweets.csv")
 
 
 
