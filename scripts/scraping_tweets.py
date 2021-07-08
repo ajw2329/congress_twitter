@@ -67,7 +67,7 @@ def get_user_tweets(
 		snscrape.modules.twitter.Tweet objects
 	'''
 
-	username = username.replace('@', '')
+	username = str(username).replace('@', '')
 
     daterange_string = start_date + "_" + end_date
     filename = username + "_" + daterange_string + ".csv"
