@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.base import BaseEstimator, TransformerMixin
 from pandarallel import pandarallel
 import pandas as pd
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 nlp = spacy.load('en_core_web_lg')
@@ -42,6 +43,13 @@ def get_pos(text, model = nlp):
     pos = Counter([token.pos_ for token in doc])
 
     return pos
+
+
+def get_sentiment(text, model = nlp):
+
+    sentiment_analyzer = SentimentIntensityAnalyzer()
+
+    return sentiment_analyzer.polarity_scores(text)
 
 
 
