@@ -131,3 +131,63 @@ def build_preprocessor(field):
 
     field_idx = list(train.columns).index(field)
     return lambda x: default_preprocessor(x[field_idx])
+
+
+def main():
+
+    twitter_handles = pd.read_csv("../data/congress_twitter_handles.csv")\
+        .drop("Unnamed: 0", axis = "columns")\
+        .rename(columns = {
+            "Party": "party", 
+            "Twitter": "username", 
+            "Member of Congress": "chamber", 
+            "Name": "name",
+            "State":"state"})\
+        .dropna(subset = ["username"])
+
+    twitter_handles["username"] = twitter_handles["username"].apply(lambda x: x.replace("@", ""))
+    twitter_handles["chamber"] = twitter_handles["chamber"].apply(lambda x: x.replace("U.S. ", ""))
+
+    twitter_handles.to_csv("../data/congress_twitter_handles_cleaned.csv")
+
+    usernames = set([i.replace("@", "") for i in twitter_handles.username])
+
+
+
+    all_tweets = pd.read_csv("../output/all_tweets.csv")
+
+    all_tweets = pd.merge(all_tweets, twitter_handles, how = "inner", on = ["username", "party"])
+
+
+    all_tweets = all_tweets[all_tweets["username"].isin(usernames)]
+
+
+    # add lemmas
+
+
+    nlp = spacy.load('en_core_web_lg')
+
+    stopwords = nlp.Defaults.stop_words
+
+    all_tweets["tweet_lemmas"] = all_tweets["tweet_content"].parallel_apply(text_processing.preprocess)
+
+
+    # add pos
+
+    pos_df = pd.DataFrame(all_tweets["tweet_content"].parallel_apply(text_processing.get_pos).to_list()).fillna(0)
+
+    all_tweets = pd.concat([all_tweets, pos_df], axis = 1, ignore_index = True)
+
+
+    # add sentiment
+
+    sentiment_df = pd.DataFrame(all_tweets["tweet_content"].parallel_apply(text_processing.get_sentiment).to_list())
+
+    all_tweets = pd.concat([all_tweets, sentiment_df], axis = 1, ignore_index = True)
+
+    all_tweets.to_csv("../data/all_tweets_full.csv")
+
+
+if __name__ == "__main__":
+
+    main()
