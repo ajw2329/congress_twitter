@@ -7,6 +7,7 @@ import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
+
 nlp = spacy.load('en_core_web_lg')
 
 stopwords = nlp.Defaults.stop_words
@@ -178,14 +179,16 @@ def main():
 
     pos_df = pd.DataFrame(all_tweets["tweet_content"].parallel_apply(get_pos).to_list()).fillna(0)
 
-    all_tweets = pd.concat([all_tweets, pos_df], axis = 1, ignore_index = True)
+    #all_tweets = pd.concat([all_tweets, pos_df], axis = 1, ignore_index = True)
+
+    all_tweets = pd.concat([all_tweets, pos_df], axis = 1)
 
 
     # add sentiment
 
     sentiment_df = pd.DataFrame(all_tweets["tweet_content"].parallel_apply(get_sentiment).to_list())
 
-    all_tweets = pd.concat([all_tweets, sentiment_df], axis = 1, ignore_index = True)
+    all_tweets = pd.concat([all_tweets, sentiment_df], axis = 1)
 
     all_tweets.to_csv("../data/all_tweets_full.csv")
 
