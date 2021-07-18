@@ -90,6 +90,16 @@ def find_persons(text, model = nlp):
 
 
 
+def extract_test_handles():
+
+    pass
+
+
+def partition_handles_cv(nfold = 5):
+
+    pass
+
+
 class PartsOfSpeechExtractor(BaseEstimator, TransformerMixin):
     """Takes in dataframe, extracts road name column, outputs average word length"""
 
