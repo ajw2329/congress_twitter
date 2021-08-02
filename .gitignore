@@ -3,3 +3,6 @@ venv
 output
 *.pyc
 .ipynb_checkpoints
+word2vec_twitter_model.bin
+binarized_models/
+word2vecReader*
