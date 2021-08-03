@@ -5,6 +5,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from pandarallel import pandarallel
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import numpy as np
 
 
 
@@ -142,6 +143,38 @@ def build_preprocessor(field):
 
     field_idx = list(train.columns).index(field)
     return lambda x: default_preprocessor(x[field_idx])
+
+
+def word_vector(tokens, model, size):
+    '''
+    Derive an average word vector from a tweet or
+    other collection of tokens.
+
+    Function derived from the blog "Twitter Sentiment Analysis - 
+    word2vec, doc2vec" by Nitin G on kaggle, which can be found here:
+
+    https://www.kaggle.com/nitin194/twitter-sentiment-analysis-word2vec-doc2vec
+    '''
+
+    vec = np.zeros(size).reshape((1, size))
+    count = 0
+
+    for word in tokens:
+
+        try:
+
+            vec += model[word].reshape((1, size))
+            count += 1
+
+        except KeyError: # if token is not in vocab
+
+            continue
+
+    if count != 0:
+
+        vec /= count
+
+    return vec
 
 
 def main():
