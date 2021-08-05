@@ -6,6 +6,9 @@ from pandarallel import pandarallel
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import numpy as np
+import os
+import sys
+import word2vecReader
 
 
 
@@ -234,6 +237,38 @@ def main():
     all_tweets = pd.concat([all_tweets, sentiment_df], axis = 1)
 
     all_tweets.to_csv("../data/all_tweets_full.csv")
+
+    # load word2vec model
+
+    os.environ['PYTHONINSPECT'] = 'True'
+
+    model_path = "../binarized_models/word2vec_twitter_model.bin"
+    print("Loading the model, this can take some time...")
+    model = word2vecReader.Word2Vec.load_word2vec_format(model_path, binary=True)
+    print("The vocabulary size is: "+str(len(model.vocab)))
+
+    # tokenize tweets
+
+    tokenized_tweets = all_tweets["tweet_content"].apply(lambda x: x.split())
+
+
+    # summarize wordvecs across tweets
+
+    wordvec_arrays = np.zeros((len(tokenized_tweets), 400))
+
+    for index, tweet in enumerate(tokenized_tweets):
+
+        wordvec_arrays[index, :] = word_vector(tweet, model, 400)
+        
+    wordvec_df = pd.DataFrame(wordvec_arrays)
+
+    wordvec_df['name'] = all_tweets['name']
+    wordvec_df['username'] = all_tweets['username']
+    wordvec_df['chamber'] = all_tweets['chamber']
+    wordvec_df['party'] = all_tweets['party']
+
+    wordvec_df.to_csv("../data/all_tweets_wordvecs_twitter_model.csv")
+
 
 
 if __name__ == "__main__":
