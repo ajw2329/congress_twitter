@@ -9,6 +9,7 @@ import numpy as np
 import os
 import sys
 import word2vecReader
+from pathlib import Path
 
 
 
@@ -208,66 +209,76 @@ def main():
 
     all_tweets = all_tweets[all_tweets["username"].isin(usernames)]
 
+    if not Path("../data/all_tweets_full.csv").is_file():
 
-    # add lemmas
+        # add lemmas
 
+        nlp = spacy.load('en_core_web_lg')
 
-    nlp = spacy.load('en_core_web_lg')
+        stopwords = nlp.Defaults.stop_words
 
-    stopwords = nlp.Defaults.stop_words
+        pandarallel.initialize()
 
-    pandarallel.initialize()
-
-    all_tweets["tweet_lemmas"] = all_tweets["tweet_content"].parallel_apply(preprocess)
-
-
-    # add pos
-
-    pos_df = pd.DataFrame(all_tweets["tweet_content"].parallel_apply(get_pos).to_list()).fillna(0)
-
-    #all_tweets = pd.concat([all_tweets, pos_df], axis = 1, ignore_index = True)
-
-    all_tweets = pd.concat([all_tweets, pos_df], axis = 1)
+        all_tweets["tweet_lemmas"] = all_tweets["tweet_content"].parallel_apply(preprocess)
 
 
-    # add sentiment
+        # add pos
 
-    sentiment_df = pd.DataFrame(all_tweets["tweet_content"].parallel_apply(get_sentiment).to_list())
+        pos_df = pd.DataFrame(all_tweets["tweet_content"].parallel_apply(get_pos).to_list()).fillna(0)
 
-    all_tweets = pd.concat([all_tweets, sentiment_df], axis = 1)
+        #all_tweets = pd.concat([all_tweets, pos_df], axis = 1, ignore_index = True)
 
-    all_tweets.to_csv("../data/all_tweets_full.csv")
-
-    # load word2vec model
-
-    os.environ['PYTHONINSPECT'] = 'True'
-
-    model_path = "../binarized_models/word2vec_twitter_model.bin"
-    print("Loading the model, this can take some time...")
-    model = word2vecReader.Word2Vec.load_word2vec_format(model_path, binary=True)
-    print("The vocabulary size is: "+str(len(model.vocab)))
-
-    # tokenize tweets
-
-    tokenized_tweets = all_tweets["tweet_content"].apply(lambda x: x.split())
+        all_tweets = pd.concat([all_tweets, pos_df], axis = 1)
 
 
-    # summarize wordvecs across tweets
+        # add sentiment
 
-    wordvec_arrays = np.zeros((len(tokenized_tweets), 400))
+        sentiment_df = pd.DataFrame(all_tweets["tweet_content"].parallel_apply(get_sentiment).to_list())
 
-    for index, tweet in enumerate(tokenized_tweets):
+        all_tweets = pd.concat([all_tweets, sentiment_df], axis = 1)
 
-        wordvec_arrays[index, :] = word_vector(tweet, model, 400)
-        
-    wordvec_df = pd.DataFrame(wordvec_arrays)
+        all_tweets.to_csv("../data/all_tweets_full.csv")
 
-    wordvec_df['name'] = all_tweets['name']
-    wordvec_df['username'] = all_tweets['username']
-    wordvec_df['chamber'] = all_tweets['chamber']
-    wordvec_df['party'] = all_tweets['party']
+    else:
 
-    wordvec_df.to_csv("../data/all_tweets_wordvecs_twitter_model.csv")
+        all_tweets = pd.read_csv("../data/all_tweets_full.csv")
+
+    if not Path("../data/all_tweets_wordvecs_twitter_model.csv").is_file():
+
+        # load word2vec model
+
+        os.environ['PYTHONINSPECT'] = 'True'
+
+        model_path = "../binarized_models/word2vec_twitter_model.bin"
+        print("Loading the model, this can take some time...")
+        model = word2vecReader.Word2Vec.load_word2vec_format(model_path, binary=True)
+        print("The vocabulary size is: "+str(len(model.vocab)))
+
+        # tokenize tweets
+
+        tokenized_tweets = all_tweets["tweet_content"].apply(lambda x: x.split())
+
+
+        # summarize wordvecs across tweets
+
+        wordvec_arrays = np.zeros((len(tokenized_tweets), 400))
+
+        for index, tweet in enumerate(tokenized_tweets):
+
+            wordvec_arrays[index, :] = word_vector(tweet, model, 400)
+            
+        wordvec_df = pd.DataFrame(wordvec_arrays)
+
+        wordvec_df['name'] = all_tweets['name']
+        wordvec_df['username'] = all_tweets['username']
+        wordvec_df['chamber'] = all_tweets['chamber']
+        wordvec_df['party'] = all_tweets['party']
+
+        wordvec_df.to_csv("../data/all_tweets_wordvecs_twitter_model.csv")
+
+    else:
+
+        wordvec_df = pd.read_csv("../data/all_tweets_wordvecs_twitter_model.csv")
 
 
 
