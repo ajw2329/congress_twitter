@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
 	twitter_handles = twitter_handles.sample(frac = 1).reset_index(drop = True)
 
-	targets = twitter_handles.party.values
+	targets = twitter_handles.party.values == "R"
 
 	kf = StratifiedKFold(n_splits = 6)
 
