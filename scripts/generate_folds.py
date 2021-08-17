@@ -27,9 +27,9 @@ if __name__ == "__main__":
 
 	all_tweets = all_tweets.merge(name_kfold, on = "name", how = "left")
 
-	all_tweets_train = all_tweets[~(all_tweets["kfold"] == 6)]
+	all_tweets_train = all_tweets[~(all_tweets["kfold"] == 5)]
 
-	all_tweets_test = all_tweets[all_tweets["kfold"] == 6]
+	all_tweets_test = all_tweets[all_tweets["kfold"] == 5]
 
 	all_tweets_train.to_csv("../data/all_tweets_full_train.csv")
 	all_tweets_test.to_csv("../data/all_tweets_full_test.csv")
